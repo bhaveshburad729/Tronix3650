@@ -72,13 +72,11 @@ pip install -r requirements.txt
 **Configure Environment Variables:**
 Create a `.env` file in the `backend` folder:
 ```env
-DATABASE_URL=postgresql://user:password@localhost/tronix365
+DATABASE_URL=postgresql://user:password@localhost/Databasename
 RAZORPAY_KEY_ID=your_key_id
 RAZORPAY_KEY_SECRET=your_key_secret
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
+BREVO_API_KEY=your_brevo_api_key
+SENDER_EMAIL=your_sender_email
 ```
 **Run Server:**
 ```bash
@@ -141,8 +139,8 @@ python reset_coupons.py
 **Shubham Ubale**
 *Founder & CEO, Tronix365*
 
--   📍 **Address**: Tronix365, near Stanza living, behind Datta Mandir, Vadgaon Budruk, Pune, Maharashtra 411041
--   📧 **Email**: admin@365.in
+-   📍 **Address**: Tronix365, Near Datta Mandir, Sinhgad College Campus, Vadgaon Budruk, Pune, Maharashtra 411041
+-   📧 **Email**: admin@tronix365.in
 -   📱 **Phone**: +91 88301 53805
 
 ---

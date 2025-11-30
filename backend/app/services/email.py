@@ -55,7 +55,7 @@ def send_confirmation_email(to_email: str, name: str, amount: int, payment_id: s
                 <ul style="list-style: none; padding: 0;">
                     <li><strong>Amount Paid:</strong> ₹{amount}</li>
                     <li><strong>Payment ID:</strong> {payment_id}</li>
-                    <li><strong>Date:</strong> {str(registration_date)}</li>
+                    <li><strong>Date:</strong> {registration_date.strftime('%Y-%m-%d %H:%M:%S') if registration_date else 'N/A'}</li>
                 </ul>
             </div>
 

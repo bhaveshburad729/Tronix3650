@@ -12,7 +12,7 @@ def create_first_coupon():
     # Ensure table exists
     Base.metadata.create_all(bind=engine)
     
-    # Generate Code
+    # Generate Code done 
     code = "TRONIX-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     
     coupon = Coupon(code=code)

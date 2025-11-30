@@ -8,8 +8,11 @@ logger = logging.getLogger(__name__)
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "shubham.tronix365@gmail.com")
 
-def send_email_via_brevo(to_email: str, subject: str, html_content: str, sender_name: str = "Tronix365", sender_email: str = "admin@tronix365.in"):
+def send_email_via_brevo(to_email: str, subject: str, html_content: str, sender_name: str = "Tronix365", sender_email: str = None):
+    if not sender_email:
+        sender_email = SENDER_EMAIL
     if not BREVO_API_KEY:
         logger.warning("BREVO_API_KEY not set. Skipping email.")
         return
@@ -76,7 +79,7 @@ def send_confirmation_email(to_email: str, name: str, amount: int, payment_id: s
 
 def send_admin_coupon_email(new_code: str):
     # Send to admin email (configured in env or hardcoded fallback)
-    admin_email = os.getenv("ADMIN_EMAIL", "admin@tronix365.in")
+    admin_email = os.getenv("ADMIN_EMAIL", "shubham.tronix365@gmail.com")
     subject = "New Coupon Code Generated"
     
     html_body = f"""

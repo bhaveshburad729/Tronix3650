@@ -7,6 +7,11 @@ from ..services.email import send_confirmation_email
 from fastapi import BackgroundTasks
 import razorpay
 import os
+import logging
+from sqlalchemy.exc import SQLAlchemyError
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -31,10 +36,26 @@ def create_payment(payment: PaymentCreate, db: Session = Depends(get_db)):
             "email": user.email
         }
     }
-    order = client.order.create(data=data)
+
+    try:
+        order = client.order.create(data=data)
+    except razorpay.errors.BadRequestError as e:
+        logger.error(f"Razorpay Bad Request: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid payment request")
+    except razorpay.errors.GatewayError as e:
+        logger.error(f"Razorpay Gateway Error: {str(e)}")
+        raise HTTPException(status_code=502, detail="Payment gateway unavailable")
+    except Exception as e:
+        logger.error(f"Razorpay Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Could not create payment order")
     
-    user.razorpay_order_id = order['id']
-    db.commit()
+    try:
+        user.razorpay_order_id = order['id']
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error saving order ID: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
     
     return {
         "razorpay_order_id": order['id'],

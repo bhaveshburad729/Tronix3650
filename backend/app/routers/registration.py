@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models.models import User, Seat, Coupon
 from ..schemas import UserCreate, UserResponse
+from sqlalchemy.exc import SQLAlchemyError
+import logging
 
 router = APIRouter()
 
@@ -29,7 +31,7 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         if db_user.payment_status == "success":
-            raise HTTPException(status_code=400, detail="Email already registered and paid")
+            raise HTTPException(status_code=409, detail="Email already registered and paid")
         else:
             # If payment is pending or failed, delete the old record to allow re-registration
             db.delete(db_user)
@@ -73,7 +75,7 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
                 seat.booked_seats += 1
                 seat.available_seats -= 1
         else:
-            raise HTTPException(status_code=400, detail="Invalid or expired coupon code")
+            raise HTTPException(status_code=404, detail="Invalid or expired coupon code")
     else:
         if seat.early_bird_taken < seat.early_bird_seats:
             amount = 6000
@@ -90,9 +92,14 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
         payment_status=payment_status,
         payment_id=payment_id_val
     )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error during registration: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error: Could not register user.")
     
     if coupon_used:
         logger.info("Coupon used. Scheduling background emails.")

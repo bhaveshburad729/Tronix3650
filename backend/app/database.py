@@ -11,6 +11,13 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localho
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Verify connection
+try:
+    with engine.connect() as connection:
+        print("Database connection successful.")
+except Exception as e:
+    print(f"Database connection failed: {e}")
+
 Base = declarative_base()
 
 def get_db():

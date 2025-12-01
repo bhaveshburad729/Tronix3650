@@ -2,6 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
 from .routers import registration, payment, seats
+from fastapi import Request
+from fastapi.responses import JSONResponse
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -28,6 +33,14 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"], # Restrict methods
     allow_headers=["*"],
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Global exception: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error. Please try again later."},
+    )
 
 app.include_router(registration.router, prefix="/api", tags=["Registration"])
 app.include_router(payment.router, prefix="/api/payment", tags=["Payment"])

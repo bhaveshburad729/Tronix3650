@@ -21,7 +21,7 @@ const Navbar = () => {
                     <a href="#syllabus" className="hover:text-tronix-primary transition duration-300">Syllabus</a>
                     <a href="#about" className="hover:text-tronix-primary transition duration-300">About Us</a>
                     <a href="#pricing" className="hover:text-tronix-primary transition duration-300">Pricing</a>
-                    <a href="#contact" className="hover:text-tronix-primary transition duration-300">Enroll</a>
+                    <a href="#enroll" className="hover:text-tronix-primary transition duration-300">Enroll</a>
                 </div>
                 <button
                     id="menu-button"
@@ -40,7 +40,7 @@ const Navbar = () => {
                     <a href="#syllabus" className="block py-2 text-center hover:text-tronix-primary transition duration-300" onClick={() => setIsMobileMenuOpen(false)}>Syllabus</a>
                     <a href="#about" className="block py-2 text-center hover:text-tronix-primary transition duration-300" onClick={() => setIsMobileMenuOpen(false)}>About Us</a>
                     <a href="#pricing" className="block py-2 text-center hover:text-tronix-primary transition duration-300" onClick={() => setIsMobileMenuOpen(false)}>Pricing</a>
-                    <a href="#contact" className="block py-2 text-center hover:text-tronix-primary transition duration-300" onClick={() => setIsMobileMenuOpen(false)}>Enroll</a>
+                    <a href="#enroll" className="block py-2 text-center hover:text-tronix-primary transition duration-300" onClick={() => setIsMobileMenuOpen(false)}>Enroll</a>
                 </div>
             )}
         </header>

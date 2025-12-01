@@ -17,6 +17,14 @@ logger = logging.getLogger(__name__)
 @router.post("/register", response_model=UserResponse)
 def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     logger.info(f"Registering user: {user.email}")
+    
+    # Validate Email (DNS Check)
+    from email_validator import validate_email, EmailNotValidError
+    try:
+        validate_email(user.email, check_deliverability=True)
+    except EmailNotValidError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid email: {str(e)}")
+
     # Check if email exists
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
@@ -40,6 +48,7 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
     payment_status = "pending"
     coupon_used = False
     new_code = None
+    payment_id_val = None
     
     # Coupon Logic
     if user.coupon_code:
@@ -48,6 +57,7 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
             amount = 0
             payment_status = "success"
             coupon_used = True
+            payment_id_val = "Paid by Cash"
             
             # Mark coupon as used
             coupon.is_used = True
@@ -77,7 +87,8 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
         year=user.year,
         message=user.message,
         amount=amount,
-        payment_status=payment_status
+        payment_status=payment_status,
+        payment_id=payment_id_val
     )
     db.add(new_user)
     db.commit()
@@ -97,7 +108,7 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
             to_email=new_user.email,
             name=new_user.name,
             amount=0,
-            payment_id="COUPON-FREE",
+            payment_id="Paid by Cash",
             registration_date=new_user.registration_date
         )
     

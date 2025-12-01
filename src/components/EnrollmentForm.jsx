@@ -5,6 +5,7 @@ const EnrollmentForm = ({ onRegisterSuccess }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        confirmEmail: '',
         phone: '',
         college: '',
         branch: '',
@@ -25,6 +26,12 @@ const EnrollmentForm = ({ onRegisterSuccess }) => {
         setLoading(true);
         setError('');
 
+        if (formData.email !== formData.confirmEmail) {
+            setError("Emails do not match!");
+            setLoading(false);
+            return;
+        }
+
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             // Send couponCode in the payload (UserCreate schema needs to match)
@@ -35,9 +42,8 @@ const EnrollmentForm = ({ onRegisterSuccess }) => {
             const response = await axios.post(`${apiUrl}/api/register`, payload);
 
             if (response.data.amount === 0) {
-                // Free registration successful
-                alert("Coupon Applied! Registration Successful.");
-                window.location.href = "/success"; // Redirect directly to success
+                // Free registration (Coupon) - Show modal for "Pay 0" experience
+                onRegisterSuccess(response.data);
             } else {
                 onRegisterSuccess(response.data);
             }
@@ -77,6 +83,21 @@ const EnrollmentForm = ({ onRegisterSuccess }) => {
                         onChange={handleChange}
                         placeholder="you@college.com"
                         required
+                        pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                        className="mt-1 block w-full px-4 py-3 bg-tronix-dark border border-gray-600 rounded-lg text-white focus:ring-tronix-primary focus:border-tronix-primary transition duration-200"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="confirmEmail" className="block text-sm font-medium text-gray-300">Confirm Email Address</label>
+                    <input
+                        type="email"
+                        id="confirmEmail"
+                        name="confirmEmail"
+                        value={formData.confirmEmail}
+                        onChange={handleChange}
+                        placeholder="Re-enter your email"
+                        required
+                        onPaste={(e) => e.preventDefault()} // Prevent pasting to force typing
                         className="mt-1 block w-full px-4 py-3 bg-tronix-dark border border-gray-600 rounded-lg text-white focus:ring-tronix-primary focus:border-tronix-primary transition duration-200"
                     />
                 </div>

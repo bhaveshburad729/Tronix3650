@@ -13,6 +13,15 @@ const PaymentModal = ({ user, onClose }) => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+            // Special handling for Coupon (Amount 0)
+            if (user.amount === 0) {
+                // Simulate a short delay for better UX
+                setTimeout(() => {
+                    navigate('/success');
+                }, 1000);
+                return;
+            }
+
             // 1. Create Order
             const orderResponse = await axios.post(`${apiUrl}/api/payment/create`, {
                 registration_id: user.id,
@@ -110,7 +119,7 @@ const PaymentModal = ({ user, onClose }) => {
                     disabled={loading}
                     className="w-full py-3 bg-tronix-primary text-tronix-dark font-extrabold rounded-lg text-lg uppercase transition-all duration-300 hover:bg-white hover:text-tronix-secondary shadow-lg shadow-tronix-primary/40 disabled:opacity-50"
                 >
-                    {loading ? 'Processing...' : 'Pay Now'}
+                    {loading ? 'Processing...' : (user.amount === 0 ? 'Complete Registration' : 'Pay Now')}
                 </button>
             </div>
         </div>

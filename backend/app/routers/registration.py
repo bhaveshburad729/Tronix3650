@@ -78,7 +78,7 @@ def register_user(user: UserCreate, background_tasks: BackgroundTasks, db: Sessi
             raise HTTPException(status_code=404, detail="Invalid or expired coupon code")
     else:
         if seat.early_bird_taken < seat.early_bird_seats:
-            amount = 6000
+            amount = 100
     
     new_user = User(
         name=user.name,

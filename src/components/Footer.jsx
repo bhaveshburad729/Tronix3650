@@ -78,7 +78,7 @@ const Footer = () => {
                         </p>
                         <div className="border-t border-gray-800 pt-4 mt-4">
                             <p className="text-xs text-gray-500 uppercase tracking-wider">Founder & CEO</p>
-                            <p className="text-tronix-primary font-medium">Er. Shubham Ubale</p>
+                            <p className="text-tronix-primary font-medium">Er. Mangesh Sanjay Adsule</p>
                         </div>
                     </div>
 

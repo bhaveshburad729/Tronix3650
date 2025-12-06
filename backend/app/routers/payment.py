@@ -52,6 +52,7 @@ def create_payment(payment: PaymentCreate, db: Session = Depends(get_db)):
     try:
         user.razorpay_order_id = order['id']
         db.commit()
+        logger.info(f"Generated Razorpay Order ID: {order['id']} for amount {user.amount}")
     except SQLAlchemyError as e:
         db.rollback()
         logger.error(f"Database error saving order ID: {str(e)}")

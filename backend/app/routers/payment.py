@@ -45,12 +45,20 @@ def verify_hash(data: dict, salt: str, status: str) -> bool:
 
 @router.post("/create")
 def create_payment(payment: PaymentCreate, db: Session = Depends(get_db)):
+    # Re-check credentials at runtime
+    current_key = os.getenv("PAYU_KEY") or PAYU_KEY
+    current_salt = os.getenv("PAYU_SALT") or PAYU_SALT
+    
+    if not current_key or not current_salt:
+        logger.error("PAYU_KEY or PAYU_SALT is missing in environment variables.")
+        raise HTTPException(status_code=500, detail="Server misconfiguration: PayU credentials missing.")
+
     user = db.query(User).filter(User.id == payment.registration_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     txnid = f"txn_{uuid.uuid4().hex[:12]}"
-    amount = float(user.amount) # PayU expects float
+    amount = user.amount # Keep as DB type (Integer) to avoid '100.0' vs '100' mismatch in Hash vs JSON
     productinfo = "Tronix Internship"
     firstname = user.name.split()[0] if user.name else "User"
     email = user.email
@@ -63,7 +71,7 @@ def create_payment(payment: PaymentCreate, db: Session = Depends(get_db)):
     furl = f"{api_url}/api/payment/payu-response"
 
     data = {
-        "key": PAYU_KEY,
+        "key": current_key,
         "txnid": txnid,
         "amount": amount,
         "productinfo": productinfo,
@@ -74,7 +82,7 @@ def create_payment(payment: PaymentCreate, db: Session = Depends(get_db)):
         "furl": furl
     }
     
-    payment_hash = generate_hash(data, PAYU_SALT)
+    payment_hash = generate_hash(data, current_salt)
     
     # Save txnid to user to verify later
     try:
@@ -92,7 +100,7 @@ def create_payment(payment: PaymentCreate, db: Session = Depends(get_db)):
 
     return {
         "action": PAYU_URL,
-        "key": PAYU_KEY,
+        "key": current_key,
         "txnid": txnid,
         "amount": amount,
         "productinfo": productinfo,

@@ -19,7 +19,13 @@ router = APIRouter()
 # PayU Credentials
 PAYU_KEY = os.getenv("PAYU_KEY")
 PAYU_SALT = os.getenv("PAYU_SALT")
-PAYU_URL = "https://test.payu.in/_payment" # Use "https://secure.payu.in/_payment" for production
+PAYU_ENV = os.getenv("PAYU_ENV", "TEST").upper()
+
+if PAYU_ENV == "PROD":
+    PAYU_URL = "https://secure.payu.in/_payment"
+else:
+    PAYU_URL = "https://test.payu.in/_payment"
+
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 if not PAYU_KEY or not PAYU_SALT:
@@ -52,6 +58,8 @@ def create_payment(payment: PaymentCreate, db: Session = Depends(get_db)):
     if not current_key or not current_salt:
         logger.error("PAYU_KEY or PAYU_SALT is missing in environment variables.")
         raise HTTPException(status_code=500, detail="Server misconfiguration: PayU credentials missing.")
+
+    logger.info(f"PayU Config: ENV={PAYU_ENV}, URL={PAYU_URL}")
 
     user = db.query(User).filter(User.id == payment.registration_id).first()
     if not user:

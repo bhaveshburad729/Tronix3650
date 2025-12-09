@@ -22,57 +22,30 @@ const PaymentModal = ({ user, onClose }) => {
                 return;
             }
 
-            // 1. Create Order
+            // 1. Get PayU Details from Backend
             const orderResponse = await axios.post(`${apiUrl}/api/payment/create`, {
                 registration_id: user.id,
                 amount: user.amount
             });
 
-            const { razorpay_order_id, amount, currency, key_id } = orderResponse.data;
+            const { action, ...formData } = orderResponse.data;
 
-            // 2. Open Razorpay
-            const options = {
-                key: key_id,
-                amount: amount,
-                currency: currency,
-                name: "Tronix365",
-                description: "40-Day Embedded & IoT Internship",
-                order_id: razorpay_order_id,
-                handler: async function (response) {
-                    try {
-                        // 3. Verify Payment
-                        await axios.post(`${apiUrl}/api/payment/verify`, {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature
-                        });
-                        navigate('/success');
-                    } catch (verifyError) {
-                        console.error("Verification failed", verifyError);
-                        navigate('/failure');
-                    }
-                },
-                prefill: {
-                    name: user.name,
-                    email: user.email,
-                    contact: user.phone
-                },
-                theme: {
-                    color: "#00f7ff"
-                },
-                modal: {
-                    ondismiss: function () {
-                        setLoading(false);
-                    }
-                }
-            };
+            // 2. Create Form and Submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = action;
+            form.style.display = 'none';
 
-            const rzp1 = new window.Razorpay(options);
-            rzp1.on('payment.failed', function (response) {
-                console.error(response.error);
-                navigate('/failure');
-            });
-            rzp1.open();
+            for (const key in formData) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = formData[key];
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
 
         } catch (err) {
             console.error(err);
@@ -119,7 +92,7 @@ const PaymentModal = ({ user, onClose }) => {
                     disabled={loading}
                     className="w-full py-3 bg-tronix-primary text-tronix-dark font-extrabold rounded-lg text-lg uppercase transition-all duration-300 hover:bg-white hover:text-tronix-secondary shadow-lg shadow-tronix-primary/40 disabled:opacity-50"
                 >
-                    {loading ? 'Processing...' : (user.amount === 0 ? 'Complete Registration' : 'Pay Now')}
+                    {loading ? 'Redirecting to PayU...' : (user.amount === 0 ? 'Complete Registration' : 'Pay Now')}
                 </button>
             </div>
         </div>

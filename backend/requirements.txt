@@ -4,7 +4,6 @@ sqlalchemy
 psycopg2-binary
 alembic
 python-dotenv
-razorpay
 pydantic
 email-validator
 requests

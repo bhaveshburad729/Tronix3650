@@ -63,7 +63,7 @@ const Hero = () => {
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <div className="mb-8 inline-block">
                     <span className="px-4 py-2 rounded-full border border-tronix-primary/30 bg-tronix-primary/10 text-tronix-primary text-sm font-semibold tracking-wider uppercase animate-fade-in-up">
-                        Registration Open for Batch 2025
+                        Registration Open for Batch 2026
                     </span>
                 </div>
 
